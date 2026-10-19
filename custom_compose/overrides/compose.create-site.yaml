@@ -14,8 +14,8 @@ services:
       PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
       UV_INSECURE_HOST: ${UV_INSECURE_HOST:-}
     volumes:
+      # sites 是建站必需；apps/env 卷统一由 compose.apps-volume.yaml 分配
       - sites:/home/frappe/frappe-bench/sites
-      - apps:/home/frappe/frappe-bench/apps
     entrypoint:
       - bash
       - -c
@@ -39,16 +39,47 @@ services:
         echo "sites/common_site_config.json found";
         if [ ! -d "apps/erpnext_china" ]; then
           echo "Downloading erpnext_china from gitee";
-          bench get-app https://gitee.com/yuzelin/erpnext_china.git;
+          # timeout 防止 get-app 在安装/构建完成后因子进程管道未释放而挂起不退出（低配服务器偶发）
+          timeout 30 bench get-app https://gitee.com/yuzelin/erpnext_china.git || echo "WARN: bench get-app timed out or failed, continuing";
+        elif ! env/bin/python -c "import erpnext_china" 2>/dev/null; then
+          echo "erpnext_china exists but missing from env, reinstalling into shared env";
+          uv pip install --no-deps --quiet -e apps/erpnext_china --python env/bin/python;
         fi;
         ls -1 apps > sites/apps.txt;
         if [ -d "sites/${SET_SITE_NAME:-frontend}" ]; then
           echo "Site ${SET_SITE_NAME:-frontend} already exists, skipping creation";
         else
-          bench new-site --mariadb-user-host-login-scope='%' --admin-password=${ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-123} --install-app erpnext --install-app erpnext_china --set-default ${SET_SITE_NAME:-frontend};
+          bench new-site --mariadb-user-host-login-scope='%' --admin-password=${ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-123} --install-app erpnext --set-default ${SET_SITE_NAME:-frontend};
+          bench --site ${SET_SITE_NAME:-frontend} install-app erpnext_china;
         fi;
 
   frontend:
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  # 等待 create-site 完成（含 erpnext_china 写入共享 env），再启动各服务
+  backend:
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  scheduler:
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  queue-short:
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  queue-long:
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  websocket:
     depends_on:
       create-site:
         condition: service_completed_successfully
