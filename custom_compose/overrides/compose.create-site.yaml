@@ -9,8 +9,8 @@ services:
       # PIP/UV 安装镜像源，可在 .env 或 shell 环境变量中覆盖
       # https 镜像示例：https://pypi.tuna.tsinghua.edu.cn/simple（默认）/ https://mirrors.aliyun.com/pypi/simple/
       # http 镜像示例：http://mirrors.example.com/pypi/simple/，此时需同时设置下面两个可信主机变量
-      PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
-      UV_DEFAULT_INDEX: ${UV_DEFAULT_INDEX:-https://pypi.tuna.tsinghua.edu.cn/simple}
+      PIP_INDEX_URL: ${PIP_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple}
+      UV_DEFAULT_INDEX: ${UV_DEFAULT_INDEX:-https://mirrors.aliyun.com/pypi/simple}
       PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
       UV_INSECURE_HOST: ${UV_INSECURE_HOST:-}
     volumes:
