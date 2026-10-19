@@ -1,0 +1,1 @@
+docker compose -p cryperp -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.noproxy.yaml -f overrides/compose.redis.yaml -f overrides/compose.create-site.yaml -f overrides/compose.apps-volume.yaml config > docker-compose.yml

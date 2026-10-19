@@ -1,0 +1,36 @@
+# 将 apps 目录持久化到独立卷：官方镜像中的 frappe/erpnext 会在卷首次创建时自动播种，
+# create-site 首次启动时从 gitee 现下载 erpnext_china 进该卷，其余服务共享读取应用代码。
+# 无需构建自定义镜像。
+# 注意：升级 ERPNext 镜像版本时必须删除该卷，否则卷内旧版 frappe/erpnext 代码会遮蔽新镜像：
+#   docker compose -p cryperp -f docker-compose.yml down -v
+services:
+  configurator:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  backend:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  websocket:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  queue-short:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  queue-long:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  scheduler:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+  create-site:
+    volumes:
+      - apps:/home/frappe/frappe-bench/apps
+
+volumes:
+  apps:
