@@ -46,11 +46,11 @@ services:
           uv pip install --no-deps --quiet -e apps/erpnext_china --python env/bin/python;
         fi;
         ls -1 apps > sites/apps.txt;
-        if [ -d "sites/${SET_SITE_NAME:-frontend}" ]; then
-          echo "Site ${SET_SITE_NAME:-frontend} already exists, skipping creation";
+        if [ -d "sites/${FRAPPE_SITE_NAME_HEADER:-frontend}" ]; then
+          echo "Site ${FRAPPE_SITE_NAME_HEADER:-frontend} already exists, skipping creation";
         else
-          bench new-site --mariadb-user-host-login-scope='%' --admin-password=${ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-123} --install-app erpnext --set-default ${SET_SITE_NAME:-frontend};
-          bench --site ${SET_SITE_NAME:-frontend} install-app erpnext_china;
+          bench new-site --mariadb-user-host-login-scope='%' --admin-password=${ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-123} --install-app erpnext --set-default ${FRAPPE_SITE_NAME_HEADER:-frontend};
+          bench --site ${FRAPPE_SITE_NAME_HEADER:-frontend} install-app erpnext_china;
         fi;
 
   frontend:
